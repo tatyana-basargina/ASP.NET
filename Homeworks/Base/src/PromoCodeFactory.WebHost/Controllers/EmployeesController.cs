@@ -89,8 +89,16 @@ namespace PromoCodeFactory.WebHost.Controllers
                 LastName = employeeModel.LastName,
                 Email = employeeModel.Email
             };
-
-            return await _employeeRepository.AddAsync(employee);
+            Guid newEmployeeId;
+            try
+            {
+                newEmployeeId = await _employeeRepository.AddAsync(employee);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok(newEmployeeId);
         }
 
         /// <summary>
@@ -100,7 +108,17 @@ namespace PromoCodeFactory.WebHost.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<bool>> DeleteEmployeeAsync(Guid id)
         {
-            return await _employeeRepository.RemoveAsync(id);
+            bool result;
+            try
+            {
+                result = await _employeeRepository.RemoveAsync(id);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            return Ok(result);
         }
 
         /// <summary>
@@ -121,14 +139,23 @@ namespace PromoCodeFactory.WebHost.Controllers
             employee.LastName = employeeModel.LastName;
             employee.Email = employeeModel.Email;
 
-            await _employeeRepository.UpdateAsync(employee);
+            try
+            {
+                employee = await _employeeRepository.UpdateAsync(employee);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
 
-            return new EmployeeShortResponse()
+            EmployeeShortResponse employeeShort = new ()
             {
                 Id = employee.Id,
                 FullName = employee.FullName,
                 Email = employee.Email,
             };
+
+            return Ok(employeeShort);
         }
 
         /// <summary>
