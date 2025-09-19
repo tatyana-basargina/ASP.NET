@@ -8,9 +8,9 @@ namespace PromoCodeFactory.DataAccess.Repositories
 {
     public class InMemoryRepository<T>: IRepository<T> where T: BaseEntity
     {
-        protected IList<T> Data { get; set; }
+        protected IEnumerable<T> Data { get; set; }
 
-        public InMemoryRepository(IList<T> data)
+        public InMemoryRepository(IEnumerable<T> data)
         {
             Data = data;
         }
@@ -27,23 +27,35 @@ namespace PromoCodeFactory.DataAccess.Repositories
 
         public Task<Guid> AddAsync(T data)
         {
+            ArgumentNullException.ThrowIfNull(data);
+
             data.Id = Guid.NewGuid();
-            Data.Add(data);
+            Data = [.. Data, data];
             return Task.FromResult(data.Id);
         }
 
         public Task<bool> RemoveAsync(Guid id)
         {
-            return Task.FromResult(Data.Remove(Data.FirstOrDefault(x => x.Id == id)));
+            List<T> list = Data as List<T> ?? Data?.ToList();
+            int countRemovedItems = list.RemoveAll(x => x.Id == id);
+
+            if (countRemovedItems > 0)
+            {
+                Data = list;
+            }
+
+            return Task.FromResult(countRemovedItems > 0);
         }
 
         public Task<T> UpdateAsync(T data)
         {
-            var dataOld = Data.FirstOrDefault(x => x.Id == data.Id);
+            ArgumentNullException.ThrowIfNull(data);
 
-            int index = Data.IndexOf(dataOld);
+            List<T> list = Data as List<T> ?? Data?.ToList();
+            int index = list.FindIndex(x => x.Id == data.Id);
 
-            Data[index] = data;
+            list[index] = data;
+            Data = list;
 
             return Task.FromResult(data);
         }

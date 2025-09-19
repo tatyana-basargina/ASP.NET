@@ -17,11 +17,15 @@ namespace PromoCodeFactory.WebHost.Controllers
     [Route("api/v1/[controller]")]
     public class EmployeesController : ControllerBase
     {
-        private readonly IEmployeeRepository _employeeRepository;
+        private readonly IRepository<Employee> _employeeRepository;
+        private readonly IRepository<Role> _roleRepository;
 
-        public EmployeesController(IEmployeeRepository employeeRepository)
+        public EmployeesController(IRepository<Employee> employeeRepository,
+            IRepository<Role> roleRepository
+        )
         {
             _employeeRepository = employeeRepository;
+            _roleRepository = roleRepository;
         }
 
         /// <summary>
@@ -86,7 +90,7 @@ namespace PromoCodeFactory.WebHost.Controllers
                 Email = employeeModel.Email
             };
 
-            return Ok(await _employeeRepository.AddAsync(employee));
+            return await _employeeRepository.AddAsync(employee);
         }
 
         /// <summary>
@@ -96,7 +100,7 @@ namespace PromoCodeFactory.WebHost.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<bool>> DeleteEmployeeAsync(Guid id)
         {
-            return Ok(await _employeeRepository.RemoveAsync(id));
+            return await _employeeRepository.RemoveAsync(id);
         }
 
         /// <summary>
@@ -106,13 +110,25 @@ namespace PromoCodeFactory.WebHost.Controllers
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<EmployeeShortResponse>> UpdateEmployeeAsync(Guid id, [FromBody] UpdateEmployeeRequest employeeModel)
         {
-            var employee = await _employeeRepository.GetByIdAsync(id);
+            Employee employee = await _employeeRepository.GetByIdAsync(id);
+
+            if (employee == null)
+            {
+                return NotFound();
+            }
 
             employee.FirstName = employeeModel.FirstName;
             employee.LastName = employeeModel.LastName;
             employee.Email = employeeModel.Email;
 
-            return Ok(await _employeeRepository.UpdateAsync(employee));
+            await _employeeRepository.UpdateAsync(employee);
+
+            return new EmployeeShortResponse()
+            {
+                Id = employee.Id,
+                FullName = employee.FullName,
+                Email = employee.Email,
+            };
         }
 
         /// <summary>
@@ -122,7 +138,9 @@ namespace PromoCodeFactory.WebHost.Controllers
         [HttpGet("{id:guid}/Roles")]
         public async Task<ActionResult<List<RoleItemResponse>>> GetEmployeeRolesByIdAsync(Guid id)
         {
-            var employeeRoles = await _employeeRepository.GetEmployeeRolesAsync(id);
+            Employee employee = await _employeeRepository.GetByIdAsync(id);
+
+            List<Role> employeeRoles = employee?.Roles ?? [];
 
             if (employeeRoles == null)
                 return NotFound();
@@ -145,7 +163,35 @@ namespace PromoCodeFactory.WebHost.Controllers
         [HttpPost("{id:guid}/AddRole")]
         public async Task<ActionResult<bool>> AddEmployeeRolesAsync(Guid id, [FromQuery] Guid roleId)
         {
-            return Ok(_employeeRepository.AddEmployeeRoleAsync(id, roleId));
+            Employee? employee = await _employeeRepository.GetByIdAsync(id);
+
+            if (employee is null)
+            {
+                return false;
+            }
+
+            Role? role = await _roleRepository.GetByIdAsync(roleId);
+
+            if (role is null)
+            {
+                return false;
+            }
+
+            bool roleExists = employee.Roles?.Exists(r => r.Id == role.Id) ?? false;
+
+            if (roleExists)
+            {
+                return false;
+            }
+
+            if (employee?.Roles is null)
+            {
+                employee.Roles = [];
+            }
+
+            employee.Roles.Add(role);
+
+            return true;
         }
 
         /// <summary>
@@ -155,7 +201,21 @@ namespace PromoCodeFactory.WebHost.Controllers
         [HttpDelete("{id:guid}/DeleteRole")]
         public async Task<ActionResult<bool>> DeleteEmployeeRolesAsync(Guid id, [FromQuery] Guid roleId)
         {
-            return Ok(_employeeRepository.DeleteEmployeeRoleAsync(id, roleId));
+            Employee? employee = await _employeeRepository.GetByIdAsync(id);
+
+            if (employee is null)
+            {
+                return false;
+            }
+
+            Role? role = employee.Roles.FirstOrDefault(r => r.Id == roleId);
+
+            if (role is null)
+            {
+                return false;
+            }
+
+            return employee.Roles.Remove(role);
         }
     }
 }
