@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using PromoCodeFactory.Core.Domain.Administration;
 
 namespace PromoCodeFactory.Core.Domain.PromoCodeManagement
@@ -22,7 +23,8 @@ namespace PromoCodeFactory.Core.Domain.PromoCodeManagement
         public Guid PreferenceId { get; set; }
         public virtual Preference Preference { get; set; }
 
-        public Guid? CustomerId { get; set; }
-        public virtual Customer? Customer { get; set; }
+        //public Guid? CustomerId { get; set; }
+        //public virtual Customer? Customer { get; set; }
+        public virtual List<Customer> Customers { get; set; }
     }
 }
