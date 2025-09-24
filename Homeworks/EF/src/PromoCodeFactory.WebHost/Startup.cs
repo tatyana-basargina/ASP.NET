@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Builder;
+п»їusing Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -28,7 +28,7 @@ namespace PromoCodeFactory.WebHost
         {
             services.AddControllers();
 
-            // 1. сделать реализацию IRepository в виде EfRepository
+            // 1. СЃРґРµР»Р°С‚СЊ СЂРµР°Р»РёР·Р°С†РёСЋ IRepository РІ РІРёРґРµ EfRepository
             services.AddScoped<IRepository<Role>, EfRepository<Role>>();
             services.AddScoped<IRepository<Employee>, EfRepository<Employee>>();
             services.AddScoped<IRepository<Preference>, EfRepository<Preference>>();
@@ -37,7 +37,7 @@ namespace PromoCodeFactory.WebHost
 
             services.AddDbContext<DataContext>(options =>
             {
-                // 2. Добавить SQLite в качестве БД
+                // 2. Р”РѕР±Р°РІРёС‚СЊ SQLite РІ РєР°С‡РµСЃС‚РІРµ Р‘Р”
                 options.UseSqlite(Configuration.GetConnectionString("SqliteConnection"));
                 options.UseLazyLoadingProxies();
             });
@@ -55,7 +55,7 @@ namespace PromoCodeFactory.WebHost
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                // 3. База должна удаляться и создаваться каждый раз
+                // 3. Р‘Р°Р·Р° РґРѕР»Р¶РЅР° СѓРґР°Р»СЏС‚СЊСЃСЏ Рё СЃРѕР·РґР°РІР°С‚СЊСЃСЏ РєР°Р¶РґС‹Р№ СЂР°Р·
                 dbContext.Database.EnsureDeleted();
                 dbContext.Database.EnsureCreated();
             }
