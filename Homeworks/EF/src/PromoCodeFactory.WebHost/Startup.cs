@@ -56,8 +56,16 @@ namespace PromoCodeFactory.WebHost
             {
                 app.UseDeveloperExceptionPage();
                 // 3. База должна удаляться и создаваться каждый раз
-                dbContext.Database.EnsureDeleted();
-                dbContext.Database.EnsureCreated();
+                // 8. удаление на каждый запуск уже не должно происходить
+                //dbContext.Database.EnsureDeleted();
+                //dbContext.Database.EnsureCreated();
+
+                // 8. реализовать две миграции
+                // начальную миграцию:
+                // dotnet ef migrations add InitialCreate --project "...\ASP.NET\Homeworks\EF\src\PromoCodeFactory.DataAccess\PromoCodeFactory.DataAccess.csproj"
+                // миграцию с изменением:
+                // dotnet ef migrations add AddCustomerPromoCodesTable --project "...\ASP.NET\Homeworks\EF\src\PromoCodeFactory.DataAccess\PromoCodeFactory.DataAccess.csproj"
+                dbContext.Database.Migrate();
             }
             else
             {

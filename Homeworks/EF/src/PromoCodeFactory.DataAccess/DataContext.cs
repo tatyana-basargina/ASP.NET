@@ -1,7 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Castle.Core.Resource;
+using Microsoft.EntityFrameworkCore;
 using PromoCodeFactory.Core.Domain.Administration;
 using PromoCodeFactory.Core.Domain.PromoCodeManagement;
 using PromoCodeFactory.DataAccess.Data;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace PromoCodeFactory.DataAccess
@@ -58,11 +61,24 @@ namespace PromoCodeFactory.DataAccess
                 );
 
             // Связь Customer и Promocode реализовать через One-To-Many
-            modelBuilder.Entity<PromoCode>()
-                .HasOne(p => p.Customer)
-                .WithMany(c => c.Promocodes)
-                .HasForeignKey(p => p.CustomerId)
-                .OnDelete(DeleteBehavior.Cascade); // 5. при удалении также нужно удалить ранее выданные промокоды клиента
+            //modelBuilder.Entity<PromoCode>()
+            //    .HasOne(p => p.Customer)
+            //    .WithMany(c => c.Promocodes)
+            //    .HasForeignKey(p => p.CustomerId)
+            //    .OnDelete(DeleteBehavior.Cascade); // 5. при удалении также нужно удалить ранее выданные промокоды клиента
+
+
+            // 7.Связь Customer и Promocode реализовать через Many-To-Many
+            // при удалении также нужно удалить ранее выданные промокоды клиента
+            modelBuilder.Entity<Customer>()
+                .HasMany(c => c.Promocodes)
+                .WithMany(p => p.Customers)
+                .UsingEntity<Dictionary<string, object>>(
+                    "CustomerPromoCodes",
+                    j => j.HasOne<PromoCode>().WithMany().HasForeignKey("PromoCodeId").OnDelete(DeleteBehavior.Cascade),
+                    j => j.HasOne<Customer>().WithMany().HasForeignKey("CustomerId").OnDelete(DeleteBehavior.Cascade),
+                    j => j.HasKey("CustomerId", "PromoCodeId")
+                );
 
             modelBuilder.Entity<PromoCode>()
                 .HasOne(p => p.PartnerManager)
