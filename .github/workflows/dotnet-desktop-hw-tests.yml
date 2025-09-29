@@ -38,11 +38,19 @@
 
 name: .NET Core Desktop
 
+env:
+    Solution_Name: PromoCodeFactory.sln                         # Replace with your solution name, i.e. MyWpfApp.sln.
+    Test_Project_Path: "Homeworks/UnitTests/src/PromoCodeFactory.UnitTests/PromoCodeFactory.UnitTests.csproj"                 # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
+    Wap_Project_Directory: "Homeworks/UnitTests/src"    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
+    Wap_Project_Path: "Homeworks/UnitTests/src/PromoCodeFactory.WebHost/PromoCodeFactory.WebHost.csproj"   
+      
 on:
   push:
     branches: [ "main", "Homework-UnitTests" ]
   pull_request:
     branches: [ "main" ]
+  
+                # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
 
 jobs:
 
@@ -65,11 +73,11 @@ jobs:
     #  uses: microsoft/setup-msbuild@v2
 
     - name: Restore
-      run: dotnet restore
+      run: dotnet restore ${{ env.Wap_Project_Path }}
 
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build ${{ env.Wap_Project_Path }} --no-restore
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
-      run: dotnet test
+      run: dotnet test ${{ env.Test_Project_Path }}
