@@ -24,10 +24,6 @@ jobs:
         sudo chmod +x /usr/local/bin/docker-compose
         docker-compose --version
 
-    - name: Build Docker images
-      run: |
-        docker-compose -f Homeworks/EF/src/docker-compose.yml build
-
     - name: Checkout code
       uses: actions/checkout@v4
 
