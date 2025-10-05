@@ -65,6 +65,7 @@ namespace PromoCodeFactory.WebHost
                 // dotnet ef migrations add InitialCreate --project "...\ASP.NET\Homeworks\EF\src\PromoCodeFactory.DataAccess\PromoCodeFactory.DataAccess.csproj"
                 // миграцию с изменением:
                 // dotnet ef migrations add AddCustomerPromoCodesTable --project "...\ASP.NET\Homeworks\EF\src\PromoCodeFactory.DataAccess\PromoCodeFactory.DataAccess.csproj"
+
                 dbContext.Database.Migrate();
             }
             else
