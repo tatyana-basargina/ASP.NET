@@ -26,7 +26,7 @@ jobs:
 
     - name: Build Docker images
       run: |
-        docker-compose -f ASP.NET/Homeworks/EF/src/docker-compose.yml build
+        docker-compose -f Homeworks/EF/src/docker-compose.yml build
 
     - name: Checkout code
       uses: actions/checkout@v4
@@ -36,11 +36,11 @@ jobs:
 
     - name: Build Docker images
       run: |
-        docker-compose -f ASP.NET/Homeworks/EF/src/docker-compose.yml build
+        docker-compose -f Homeworks/EF/src/docker-compose.yml build
 
     - name: Start services
       run: |
-        docker-compose -f ASP.NET/Homeworks/EF/src/docker-compose.yml up -d
+        docker-compose -f Homeworks/EF/src/docker-compose.yml up -d
         sleep 10
 
     - name: Check running containers
