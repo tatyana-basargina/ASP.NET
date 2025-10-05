@@ -8,7 +8,6 @@ using PromoCodeFactory.Core.Abstractions.Repositories;
 using PromoCodeFactory.Core.Domain.Administration;
 using PromoCodeFactory.Core.Domain.PromoCodeManagement;
 using PromoCodeFactory.DataAccess;
-using PromoCodeFactory.DataAccess.Data;
 using PromoCodeFactory.DataAccess.Repositories;
 
 namespace PromoCodeFactory.WebHost
@@ -38,7 +37,8 @@ namespace PromoCodeFactory.WebHost
             services.AddDbContext<DataContext>(options =>
             {
                 // 2. Добавить SQLite в качестве БД
-                options.UseSqlite(Configuration.GetConnectionString("SqliteConnection"));
+                //options.UseSqlite(Configuration.GetConnectionString("SqliteConnection"));
+                options.UseNpgsql(Configuration.GetConnectionString("NpgsqlConnection"));
                 options.UseLazyLoadingProxies();
             });
 
