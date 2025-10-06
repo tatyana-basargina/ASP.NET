@@ -7,9 +7,9 @@ services:
       context: .
       dockerfile: PromoCodeFactory.WebHost/Dockerfile
     ports:
-      - target: 80
-        published: 5000
-        protocol: tcp
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy  # Добавьте условие здоровья
