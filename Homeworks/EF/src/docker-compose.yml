@@ -5,7 +5,7 @@ services:
     image: promocodefactorywebhost
     build:
       context: .
-      dockerfile: PromoCodeFactory.WebHost/Dockerfile
+      dockerfile: ./PromoCodeFactory.WebHost/Dockerfile
     ports:
       - target: 80
         published: 5000
