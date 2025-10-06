@@ -27,7 +27,7 @@ namespace PromoCodeFactory.DataAccess
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
+        {            
             // 4.
             // PromoCode имеет ссылку на Preference
             modelBuilder.Entity<PromoCode>()
@@ -73,7 +73,7 @@ namespace PromoCodeFactory.DataAccess
             modelBuilder.Entity<Customer>()
                 .HasMany(c => c.Promocodes)
                 .WithMany(p => p.Customers)
-                .UsingEntity<Dictionary<string, object>>(
+                .UsingEntity<Dictionary<Guid, Guid>>(
                     "CustomerPromoCodes",
                     j => j.HasOne<PromoCode>().WithMany().HasForeignKey("PromoCodeId").OnDelete(DeleteBehavior.Cascade),
                     j => j.HasOne<Customer>().WithMany().HasForeignKey("CustomerId").OnDelete(DeleteBehavior.Cascade),
@@ -142,6 +142,22 @@ namespace PromoCodeFactory.DataAccess
             );
 
             base.OnModelCreating(modelBuilder);
+
+            // Для всех свойств типа Guid настройте преобразование
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetProperties())
+                {
+                    if (property.ClrType == typeof(Guid))
+                    {
+                        property.SetColumnType("uuid");
+                    }
+                    else if (property.ClrType == typeof(Guid?))
+                    {
+                        property.SetColumnType("uuid");
+                    }
+                }
+            }
         }
     }
 }
