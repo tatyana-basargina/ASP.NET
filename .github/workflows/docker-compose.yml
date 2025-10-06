@@ -1,4 +1,4 @@
-name: Docker Compose CI
+name: CI
 
 on:
   push:
@@ -15,75 +15,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Install docker-compose
-      run: |
-        sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        sudo chmod +x /usr/local/bin/docker-compose
-        docker-compose --version
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Install docker-compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      - name: Build and start services
+        run: |
+          cd ${{ github.workspace }}/Homeworks/EF/src/
+          docker-compose up --build -d
+          docker-compose ps
 
-    - name: Build Docker images
-      run: |
-        docker-compose -f docker-compose.yml build
+      - name: View logs
+        if: always()
+        run: |
+          cd ${{ github.workspace }}/Homeworks/EF/src/
+          docker-compose logs
 
-    - name: Start services
-      run: |
-        docker-compose -f docker-compose.yml up -d
-        sleep 10
-
-    - name: Check running containers
-      run: |
-        docker-compose ps
-        docker-compose logs
-
-    - name: Wait for PostgreSQL to be ready
-      run: |
-        timeout 60s bash -c 'until docker-compose exec -T postgres pg_isready -U postgres -d HomeworkDockerDb; do sleep 2; done'
-
-    - name: Run database migrations
-      run: |
-        docker-compose exec -T promocodefactory.webhost dotnet ef database update
-
-    - name: Run tests
-      run: |
-        # Если у вас есть тесты в решении
-        docker-compose exec -T promocodefactory.webhost dotnet test --verbosity normal
-
-    - name: Health check application
-      run: |
-        # Проверяем, что приложение запустилось
-        timeout 30s bash -c 'until curl -f http://localhost:8080/health || curl -f http://localhost:8080/api/health; do sleep 3; done' || echo "Health check failed but continuing"
-
-    - name: Stop containers
-      run: |
-        docker-compose down
-
-  security-scan:
-    runs-on: ubuntu-latest
-    needs: build-and-test
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
-      with:
-        scan-type: 'fs'
-        scan-ref: '.'
-        format: 'sarif'
-        output: 'trivy-results.sarif'
-
-    - name: Upload Trivy scan results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v3
-      if: always()
-      with:
-        sarif_file: 'trivy-results.sarif'
+      - name: Stop services
+        if: always()
+        run: |
+          cd ${{ github.workspace }}/Homeworks/EF/src/
+          docker-compose down

@@ -1,9 +1,15 @@
+version: '3.8'
+
 services:
   promocodefactory.webhost:
-    image: ${DOCKER_REGISTRY-}promocodefactorywebhost
+    image: promocodefactorywebhost
     build:
       context: .
       dockerfile: PromoCodeFactory.WebHost/Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
     depends_on:
       - postgres
 
@@ -17,6 +23,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d HomeworkDockerDb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
