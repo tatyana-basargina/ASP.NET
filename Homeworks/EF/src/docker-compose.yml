@@ -2,7 +2,7 @@ version: '3.8'  # Добавьте эту строку в начало
 
 services:
   promocodefactory.webhost:
-    image: ${DOCKER_REGISTRY-}promocodefactorywebhost
+    image: promocodefactorywebhost
     build:
       context: .
       dockerfile: PromoCodeFactory.WebHost/Dockerfile
