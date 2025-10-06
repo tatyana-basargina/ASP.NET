@@ -43,6 +43,7 @@ jobs:
 
     - name: Check running containers
       run: |
+        cd ${{ github.workspace }}/Homeworks/EF/src/
         docker-compose ps
         docker-compose logs
 
@@ -52,11 +53,13 @@ jobs:
 
     - name: Run database migrations
       run: |
+        cd ${{ github.workspace }}/Homeworks/EF/src/
         docker-compose exec -T promocodefactory.webhost dotnet ef database update
 
     - name: Run tests
       run: |
         # Если у вас есть тесты в решении
+        cd ${{ github.workspace }}/Homeworks/EF/src/
         docker-compose exec -T promocodefactory.webhost dotnet test --verbosity normal
 
     - name: Health check application
@@ -66,6 +69,7 @@ jobs:
 
     - name: Stop containers
       run: |
+        cd ${{ github.workspace }}/Homeworks/EF/src/
         docker-compose down
 
   security-scan:
