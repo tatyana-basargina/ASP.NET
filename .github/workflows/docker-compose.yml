@@ -32,10 +32,12 @@ jobs:
 
     - name: Build Docker images
       run: |
+        cd ${{ github.workspace }}/Homeworks/EF/src/
         docker-compose -f docker-compose.yml build
 
     - name: Start services
       run: |
+        cd ${{ github.workspace }}/Homeworks/EF/src/
         docker-compose -f docker-compose.yml up -d
         sleep 10
 
