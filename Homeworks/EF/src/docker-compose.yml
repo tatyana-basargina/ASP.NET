@@ -1,3 +1,5 @@
+version: '3.8'  # Добавьте эту строку в начало
+
 services:
   promocodefactory.webhost:
     image: ${DOCKER_REGISTRY-}promocodefactorywebhost
@@ -5,7 +7,8 @@ services:
       context: .
       dockerfile: PromoCodeFactory.WebHost/Dockerfile
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy  # Добавьте условие здоровья
 
   postgres:
     image: postgres:latest
@@ -17,6 +20,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:  # Добавьте healthcheck для postgres
+      test: ["CMD-SHELL", "pg_isready -U postgres -d HomeworkDockerDb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
